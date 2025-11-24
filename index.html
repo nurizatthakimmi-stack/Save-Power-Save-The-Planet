@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Save Power, Save The Planet</title>
+    
+
+  </head>
+    
+  <body>
+  <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Save Power, Save the Planet</title>
+    <style>
+        /* --- COMIC BOOK SUPERHERO THEME --- */
+        @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Roboto:wght@400;700&display=swap');
+
+        :root {
+            --hero-red: #e74c3c;
+            --hero-blue: #3498db;
+            --hero-yellow: #f1c40f;
+            --hero-green: #2ecc71;
+            --hero-dark: #2c3e50;
+            --comic-white: #ecf0f1;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--hero-dark);
+            overflow: hidden;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        /* DYNAMIC COMIC BACKGROUND - ROTATING STRIPES */
+        .comic-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200vmax; /* Large enough to cover corners when rotating */
+            height: 200vmax;
+            transform: translate(-50%, -50%);
+            background: repeating-conic-gradient(
+                from 0deg at 50% 50%,
+                var(--hero-blue) 0deg 15deg,
+                #2980b9 15deg 30deg
+            );
+            z-index: -1;
+            will-change: transform; 
+            animation: spinBg 20s linear infinite; 
+        }
+
+        /* Animation: Clockwise rotation */
+        @keyframes spinBg { 
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        #app {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* HEADERS */
+        h1 {
+            font-family: 'Bangers', cursive;
+            color: var(--hero-yellow);
+            font-size: 3rem;
+            text-shadow: 4px 4px 0px #000;
+            margin: 0 0 10px 0;
+            letter-spacing: 2px;
+            transform: rotate(-2deg);
+            text-align: center;
+            line-height: 1.1;
+        }
+
+        h2 {
+            font-family: 'Bangers', cursive;
+            color: var(--hero-yellow);
+            font-size: 2rem;
+            text-shadow: 2px 2px 0 #000;
+            margin: 5px;
+            text-align: center;
+        }
+
+        p {
+            color: var(--comic-white);
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-shadow: 1px 1px 0 #000;
+            text-align: center;
+        }
+
+        /* SCREENS */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+        .active { display: flex; }
+
+        /* PAUSE SCREEN & COUNTDOWN */
+        #screen-pause, #countdown-overlay {
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 900;
+        }
+        
+        #countdown-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2000;
+            visibility: hidden;
+        }
+        .countdown-active { visibility: visible !important; }
+        
+        #countdown-number {
+            font-family: 'Bangers', cursive;
+            font-size: 12rem;
+            color: var(--hero-yellow);
+            text-shadow: 8px 8px 0 #000;
+            animation: pulse 0.8s infinite;
+        }
+
+        /* BUTTONS */
+        .btn {
+            background: linear-gradient(to bottom, var(--hero-yellow), #f39c12);
+            border: 4px solid #000;
+            border-radius: 15px;
+            padding: 15px 30px;
+            font-family: 'Bangers', cursive;
+            font-size: 1.8rem;
+            color: #000;
+            cursor: pointer;
+            box-shadow: 5px 5px 0px #000;
+            transition: transform 0.1s;
+            margin: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 80%;
+            max-width: 300px;
+            position: relative;
+            z-index: 20;
+        }
+        .btn:active {
+            transform: translate(4px, 4px);
+            box-shadow: 1px 1px 0px #000;
+        }
+        .btn-small {
+            font-size: 1.2rem;
+            padding: 10px 20px;
+            width: auto;
+        }
+        .btn-red {
+            background: linear-gradient(to bottom, var(--hero-red), #c0392b);
+            color: white;
+        }
+
+        /* INPUT FIELD */
+        #player-name-input {
+            font-family: 'Bangers', cursive;
+            font-size: 2rem;
+            padding: 10px;
+            border: 4px solid #000;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 300px;
+            text-align: center;
+            margin-bottom: 20px;
+            outline: none;
+            text-transform: uppercase;
+            box-shadow: 5px 5px 0 rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 20;
+        }
+
+        /* LEADERBOARD STYLES */
+        #leaderboard-content {
+            width: 95%;
+            max-width: 450px;
+            background: rgba(255,255,255,0.95);
+            border: 4px solid #000;
+            border-radius: 15px;
+            padding: 15px;
+            font-family: 'Bangers', cursive;
+            color: #000;
+            max-height: 60vh;
+            overflow-y: auto;
+            box-shadow: 10px 10px 0 rgba(0,0,0,0.3);
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 20;
+        }
+        .lb-section { margin-bottom: 15px; }
+        .lb-title { 
+            font-size: 1.5rem; 
+            color: var(--hero-blue); 
+            text-decoration: underline; 
+            margin-bottom: 5px;
+            text-align: left;
+        }
+        .lb-row {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px dashed #ccc;
+            padding: 5px 0;
+            font-size: 1.1rem;
+            align-items: center;
+        }
+        .lb-row:last-child { border-bottom: none; }
+        .lb-score { color: var(--hero-red); font-weight: bold; }
+
+        /* HUD (Lives, Score, Timer, Pause) */
+        #hud {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 0 15px;
+            box-sizing: border-box;
+            z-index: 50;
+            pointer-events: none;
+        }
+        /* Re-enable pointer events for button */
+        #pause-btn, #mute-btn {
+            pointer-events: auto;
+            background: white;
+            border: 3px solid black;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 3px 3px 0 #000;
+            display: flex; justify-content: center; align-items: center;
+            margin-bottom: 10px;
+        }
+        .hud-left, .hud-right {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .lives-container {
+            font-size: 2rem;
+            filter: drop-shadow(2px 2px 0 #000);
+        }
+        .score-display {
+            font-family: 'Bangers';
+            color: var(--hero-yellow);
+            font-size: 1.5rem;
+            text-shadow: 2px 2px 0 #000;
+            text-align: left;
+        }
+        .timer-display {
+            font-family: 'Bangers';
+            color: var(--hero-white);
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 0 #000;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 15px;
+            border-radius: 10px;
+            border: 2px solid white;
+        }
+        .hidden { visibility: hidden; }
+
+        /* --- GAME STYLES --- */
+        /* GAME 1 */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            background: rgba(0,0,0,0.5);
+            padding: 20px;
+            border-radius: 20px;
+            border: 4px solid var(--hero-yellow);
+            position: relative;
+            z-index: 5;
+        }
+        .grid-cell {
+            width: 70px;
+            height: 70px;
+            background: #34495e;
+            border-radius: 50%;
+            border: 3px solid #000;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.1s;
+            cursor: pointer;
+        }
+        .grid-cell.active {
+            background: var(--hero-yellow);
+            box-shadow: 0 0 25px var(--hero-yellow);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transform: scale(1.1);
+        }
+        .grid-cell.active::after { content: '💡'; font-size: 3.5rem; }
+        .grid-cell.trap {
+            background: var(--hero-red);
+            box-shadow: 0 0 25px var(--hero-red);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transform: scale(1.1);
+        }
+        .grid-cell.trap::after { content: '👾'; font-size: 3.5rem; }
+
+        /* GAME 2 */
+        .bins-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            width: 100%;
+            position: relative; z-index: 5;
+        }
+        .bin {
+            width: 140px;
+            height: 160px;
+            border: 4px solid #fff;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            padding-bottom: 10px;
+            font-family: 'Bangers';
+            font-size: 1.5rem;
+            color: white;
+            text-shadow: 2px 2px 0 #000;
+            transition: transform 0.2s;
+        }
+        .bin-off { background: var(--hero-red); border-color: #ff7675; }
+        .bin-on { background: var(--hero-green); border-color: #55efc4; }
+        .bin.hovered { transform: scale(1.1); box-shadow: 0 0 20px white; }
+        .bin-icon { font-size: 3rem; margin-bottom: 10px; }
+        #draggable-area {
+            height: 150px; width: 100%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 10;
+        }
+        .draggable-item {
+            width: 100px; height: 100px; background: white; border: 4px solid #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 3.5rem; cursor: grab; box-shadow: 0 5px 15px rgba(0,0,0,0.3); position: absolute; touch-action: none;
+        }
+        .draggable-item:active { cursor: grabbing; }
+        /* New Description Style */
+        #sort-description {
+            font-family: 'Bangers';
+            color: #000; /* Changed to black for better readability */
+            font-size: 1.8rem;
+            /* Removed text-shadow for clearer black text */
+            margin: 10px auto; /* Centered horizontally */
+            text-align: center;
+            width: fit-content; /* Adjust width to fit content */
+            max-width: 90%; /* Prevent it from being too wide */
+            position: relative;
+            z-index: 10;
+            /* Added a background and padding for better contrast */
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px 20px;
+            border-radius: 15px;
+            border: 3px solid #000;
+        }
+
+        /* GAME 3 */
+        .sky-bg {
+            background: linear-gradient(to bottom, #87CEEB, #2ecc71);
+            border-radius: 50%; width: 300px; height: 300px; position: relative; overflow: hidden; border: 8px solid #fff; box-shadow: 0 0 30px rgba(255,255,255,0.5); z-index: 5;
+        }
+        .floating-item {
+            position: absolute; font-size: 2.5rem; animation: floatAnim 3s infinite ease-in-out; cursor: pointer;
+        }
+
+        /* GAME 4 */
+        .quiz-card {
+            background: #fff; border: 4px solid #000; border-radius: 20px; padding: 20px; width: 90%; max-width: 400px; text-align: center; box-shadow: 10px 10px 0 rgba(0,0,0,0.2); position: relative; z-index: 5;
+        }
+        .quiz-question { font-size: 1.5rem; font-weight: bold; color: var(--hero-dark); margin-bottom: 20px; }
+        .quiz-btn-container { display: flex; gap: 15px; justify-content: center; }
+        .quiz-btn { flex: 1; padding: 15px; border: 3px solid #000; border-radius: 10px; font-family: 'Bangers'; font-size: 1.5rem; cursor: pointer; color: white; box-shadow: 3px 3px 0 #000; }
+        .btn-yes { background: var(--hero-green); }
+        .btn-no { background: var(--hero-red); }
+        .quiz-icon { font-size: 4rem; display: block; margin-bottom: 10px; }
+
+        /* MASCOT */
+        #mascot-container {
+            position: absolute; bottom: 10px; right: 10px; z-index: 100; pointer-events: none; text-align: center;
+        }
+        #mascot-img { font-size: 5rem; filter: drop-shadow(5px 5px 0 rgba(0,0,0,0.3)); transition: transform 0.2s; }
+        #mascot-bubble {
+            background: #fff; border: 3px solid #000; padding: 10px; border-radius: 15px; font-family: 'Bangers'; font-size: 1.2rem; position: relative; bottom: 5px; opacity: 0; transition: opacity 0.3s;
+        }
+
+        /* ANIMATIONS & UTILS */
+        @keyframes floatAnim { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
+        @keyframes zoomIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .shaking { animation: shake 0.5s; }
+
+        #damage-overlay {
+            position: absolute; top:0; left:0; width:100%; height:100%; background: red; opacity: 0; pointer-events: none; z-index: 999; transition: opacity 0.1s;
+        }
+    </style>
+</head>
+<body>
+
+<div class="comic-bg"></div>
+<div id="damage-overlay"></div>
+
+<div id="app">
+
+    <!-- COUNTDOWN OVERLAY -->
+    <div id="countdown-overlay">
+        <div id="countdown-number">3</div>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud" class="hidden">
+        <div class="hud-left">
+            <div class="lives-container" id="lives-display">❤️❤️❤️</div>
+            <div class="score-display">SCORE: <span id="score-val">0</span></div>
+        </div>
+        <div class="timer-display" id="timer-display">10</div>
+        <div class="hud-right">
+            <button id="pause-btn" onclick="togglePause()">⏸️</button>
+            <button id="mute-btn" onclick="toggleMute()">🔊</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 0: HOME -->
+    <div id="screen-home" class="screen active">
+        <h1>SAVE POWER<br>SAVE THE PLANET</h1>
+        <div style="font-size: 6rem; animation: floatAnim 3s infinite;">⚡🌍</div>
+        <button class="btn" onclick="goTo('name')">PLAY</button>
+    </div>
+
+    <!-- SCREEN: NAME INPUT -->
+    <div id="screen-name" class="screen">
+        <h2>WHAT IS YOUR NAME?</h2>
+        <input type="text" id="player-name-input" placeholder="HERO NAME" maxlength="10">
+        <button class="btn" onclick="submitName()">START MISSION</button>
+    </div>
+
+    <!-- SCREEN: MISSION SELECT -->
+    <div id="screen-select" class="screen">
+        <h2>CHOOSE MISSION</h2>
+        <h3 id="welcome-msg" style="color:white; font-family:'Bangers'; margin-top:0;">Hi Hero!</h3>
+        <button class="btn" onclick="startGame(1)">⚡ SPEED OF LIGHT</button>
+        <button class="btn" style="filter: hue-rotate(40deg);" onclick="startGame(2)">♻️ POWER SORT</button>
+        <button class="btn" style="filter: hue-rotate(90deg);" onclick="startGame(3)">🌍 EARTH DEFENDER</button>
+        <button class="btn" style="filter: hue-rotate(180deg);" onclick="startGame(4)">❓ POWER QUIZ</button>
+        <button class="btn btn-small" style="background: #ecf0f1; color:#000; margin-top:15px;" onclick="goTo('leaderboard')">🏆 LEADERBOARD</button>
+        <button class="btn btn-small" style="background: #ecf0f1; color:#000;" onclick="goTo('home')">BACK</button>
+    </div>
+
+    <!-- SCREEN: LEADERBOARD -->
+    <div id="screen-leaderboard" class="screen">
+        <h2>🏆 TOP HEROES</h2>
+        <div id="leaderboard-content">
+            <!-- Filled by JS -->
+        </div>
+        <button class="btn" onclick="goTo('select')">BACK TO MISSIONS</button>
+    </div>
+
+    <!-- SCREEN: PAUSE MENU -->
+    <div id="screen-pause" class="screen">
+        <h1>GAME PAUSED</h1>
+        <div style="font-size: 5rem;">⏸️</div>
+        <button class="btn" onclick="togglePause()">RESUME</button>
+        <button class="btn btn-red" onclick="quitGame()">QUIT TO MENU</button>
+    </div>
+
+    <!-- GAME 1: REFLEX -->
+    <div id="screen-game1" class="screen">
+        <h2>TAP THE BULBS!</h2>
+        <p>Score as much as you can in 10s!</p>
+        <div class="grid-container" id="grid-game1"></div>
+    </div>
+
+    <!-- GAME 2: POWER SORT -->
+    <div id="screen-game2" class="screen">
+        <h2>SORT THE POWER!</h2>
+        <p id="sort-description"></p> <!-- NEW: Description container -->
+        <div id="draggable-area"></div>
+        <div class="bins-container">
+            <div class="bin bin-off" id="bin-off"><div class="bin-icon">🛑</div>TURN OFF</div>
+            <div class="bin bin-on" id="bin-on"><div class="bin-icon">✅</div>KEEP ON</div>
+        </div>
+    </div>
+
+    <!-- GAME 3: CLEANUP -->
+    <div id="screen-game3" class="screen">
+        <h2>DEFEND EARTH</h2>
+        <p>Clean trash for 10s!</p>
+        <div class="sky-bg" id="sky-game3">
+            <div style="font-size: 8rem; position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%);">🌍</div>
+        </div>
+    </div>
+
+    <!-- GAME 4: QUIZ -->
+    <div id="screen-game4" class="screen">
+        <h2>POWER QUIZ</h2>
+        <p>Answer fast! 30s left!</p>
+        <div id="quiz-container"></div>
+    </div>
+
+    <!-- VICTORY -->
+    <div id="screen-victory" class="screen">
+        <h1>TIME'S UP!</h1>
+        <div style="font-size: 7rem;">🦸‍♂️</div>
+        <p>Final Score: <span id="final-score">0</span></p>
+        <button class="btn" onclick="goTo('leaderboard')">SEE RANKING</button>
+        <button class="btn btn-small" style="background:#fff; color:#000" onclick="goTo('select')">PLAY AGAIN</button>
+    </div>
+
+    <!-- GAME OVER -->
+    <div id="screen-gameover" class="screen">
+        <h1 style="color: var(--hero-red);">GAME OVER!</h1>
+        <div style="font-size: 6rem;">💥</div>
+        <p>Out of Lives!</p>
+        <p>Score: <span id="fail-score">0</span></p>
+        <button class="btn" onclick="goTo('leaderboard')">SEE RANKING</button>
+        <button class="btn btn-small" style="background:#fff; color:#000" onclick="goTo('select')">BACK TO MENU</button>
+    </div>
+
+    <!-- MASCOT -->
+    <div id="mascot-container">
+        <div id="mascot-bubble">Ready?</div>
+        <div id="mascot-img">🦸</div>
+    </div>
+
+</div>
+
+<script>
+    /* --- GLOBAL VARIABLES --- */
+    let lives = 3;
+    let score = 0;
+    let spawnTimer = null;
+    let playerName = "HERO";
+    let currentGameId = 0;
+    let isGameActive = false; 
+    
+    // Timer Variables
+    let gameTimeSeconds = 10; 
+    let clockTimerInterval = null;
+    let isPaused = false;
+    let isPreGame = false;
+
+    /* --- DATA SETS (Updated with Desc & No Repeats) --- */
+    const masterSortItems = [
+        { icon: '📺', type: 'off', name: 'TV', desc: "No one is watching!" },
+        { icon: '🧊', type: 'on', name: 'Fridge', desc: "Keep food cold!" },
+        { icon: '💡', type: 'off', name: 'Lamp', desc: "It's sunny outside!" },
+        { icon: '🎮', type: 'off', name: 'Game', desc: "Time to go play outside!" },
+        { icon: '⏰', type: 'on', name: 'Clock', desc: "Needs to tell time!" },
+        { icon: '💨', type: 'off', name: 'Fan', desc: "Room is empty!" },
+        { icon: '💻', type: 'off', name: 'Laptop', desc: "Fully charged!" },
+        { icon: '🔌', type: 'off', name: 'Unplug', desc: "Not charging anything." },
+        { icon: '📻', type: 'off', name: 'Radio', desc: "Silence is golden." },
+        { icon: '🥶', type: 'on', name: 'Freezer', desc: "Don't melt the ice!" },
+        { icon: '📱', type: 'off', name: 'Tablet', desc: "Battery is 100%." },
+        { icon: '📷', type: 'on', name: 'Camera', desc: "Keeping us safe!" },
+        { icon: '📶', type: 'on', name: 'Router', desc: "We need internet!" },
+        { icon: '🧴', type: 'off', name: 'Dryer', desc: "Hair is dry now!" },
+        { icon: '🌪️', type: 'off', name: 'Blender', desc: "Juice is ready!" },
+        { icon: '👔', type: 'off', name: 'Iron', desc: "Clothes are flat!" },
+        { icon: '🍞', type: 'off', name: 'Toaster', desc: "Toast is ready!" },
+        { icon: '♨️', type: 'off', name: 'Heater', desc: "It's hot outside!" },
+        { icon: '❄️', type: 'off', name: 'AC', desc: "Nobody is home!" },
+        { icon: '🚿', type: 'off', name: 'Shower', desc: "Done washing!" },
+        { icon: '🍲', type: 'off', name: 'Microwave', desc: "Food is hot!" }
+    ];
+    let sortQueue = [];
+
+    const masterQuizData = [
+        { q: "Turn off lights when leaving?", icon: "💡", ans: true },
+        { q: "Leave fridge door open?", icon: "🚪", ans: false },
+        { q: "Use sun instead of lamps?", icon: "☀️", ans: true },
+        { q: "Keep TV on while sleeping?", icon: "😴", ans: false },
+        { q: "Unplug chargers when done?", icon: "🔌", ans: true },
+        { q: "Is saving power good?", icon: "🌍", ans: true },
+        { q: "AC on with windows open?", icon: "🪟", ans: false },
+        { q: "Dry clothes in the sun?", icon: "👕", ans: true },
+        { q: "Computer on all night?", icon: "💻", ans: false },
+        { q: "Wash clothes with cold water?", icon: "🌊", ans: true }
+    ];
+    let quizQueue = [];
+
+    /* --- AUDIO SYSTEM --- */
+    // User provided Action/Game Music URL - Using external URL for menu as well now
+    const menuBgmUrl = "https://v.wejfknwejfkerf.org/dl.php?id=8212bdda0f6be5a9a3b6ef36dc9f78c5";
+    const menuAudio = new Audio(menuBgmUrl);
+    menuAudio.loop = true; 
+    menuAudio.volume = 0.4; 
+    
+    let isMuted = false;
+    let audioCtx;
+    let gameMusicInterval = null; // For generated game music
+
+    function initAudio() {
+        menuAudio.load();
+        if (!audioCtx) {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            audioCtx = new AudioContext();
+        }
+        if (audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    // --- GAME MUSIC GENERATOR (Catchy Chiptune) ---
+    function playGameBGM() {
+        if (isMuted || gameMusicInterval) return;
+        initAudio();
+        // Stop any menu music first
+        menuAudio.pause();
+        menuAudio.currentTime = 0;
+
+        let beatCount = 0;
+        const tempo = 160; // Faster for game
+        const intervalTime = (60 / tempo) * 1000 / 2; 
+
+        // Frequencies for a cheerful C-Major scale melody
+        // C4, E4, G4, A4 pattern
+        const melody = [
+            261.63, null, 329.63, null, 392.00, 329.63, 440.00, 392.00,
+            261.63, null, 329.63, null, 392.00, 329.63, 293.66, null
+        ];
+
+        // Driving Bass line
+        const bassLine = [
+            65.41, 65.41, 65.41, 65.41, 87.31, 87.31, 98.00, 98.00, 
+            65.41, 65.41, 65.41, 65.41, 87.31, 87.31, 73.42, 73.42
+        ];
+
+        gameMusicInterval = setInterval(() => {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const currentTime = audioCtx.currentTime;
+            
+            // Bass (Square wave)
+            const bassFreq = bassLine[beatCount % 16];
+            if(bassFreq) {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'square';
+                osc.frequency.value = bassFreq;
+                gain.gain.setValueAtTime(0.08, currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.1);
+                osc.start(currentTime);
+                osc.stop(currentTime + 0.1);
+            }
+            
+            // Melody (Triangle)
+            const note = melody[beatCount % 16];
+            if (note) {
+                const osc2 = audioCtx.createOscillator();
+                const gain2 = audioCtx.createGain();
+                osc2.connect(gain2);
+                gain2.connect(audioCtx.destination);
+                osc2.type = 'triangle';
+                osc2.frequency.value = note;
+                gain2.gain.setValueAtTime(0.08, currentTime);
+                gain2.gain.exponentialRampToValueAtTime(0.01, currentTime + 0.1);
+                osc2.start(currentTime);
+                osc2.stop(currentTime + 0.1);
+            }
+
+            beatCount++;
+        }, intervalTime);
+    }
+
+    function stopGameBGM() {
+        if (gameMusicInterval) {
+            clearInterval(gameMusicInterval);
+            gameMusicInterval = null;
+        }
+    }
+
+    // --- MENU MUSIC PLAYER ---
+    function playMenuBGM() {
+        stopGameBGM(); // Stop game music
+        if (isMuted) return;
+        
+        const playPromise = menuAudio.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => console.log("Waiting for interaction."));
+        }
+    }
+
+    function stopMenuBGM() {
+        menuAudio.pause();
+        menuAudio.currentTime = 0; 
+    }
+    
+    function stopAllMusic() {
+        stopMenuBGM();
+        stopGameBGM();
+    }
+
+    function playZap() {
+        if(isMuted || !audioCtx) return;
+        if(audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+    }
+
+    function toggleMute() {
+        isMuted = !isMuted;
+        const btn = document.getElementById('mute-btn');
+        menuAudio.muted = isMuted;
+        btn.innerText = isMuted ? '🔇' : '🔊';
+        
+        if(isMuted) {
+            stopAllMusic();
+        } else {
+            // Determine what to play based on current screen
+            const currentScreen = document.querySelector('.screen.active').id;
+            if(currentScreen.startsWith('screen-game') && !isPaused && !isPreGame) {
+                playGameBGM();
+            } else if (currentScreen === 'screen-home' || currentScreen === 'screen-select' || currentScreen === 'screen-name') {
+                playMenuBGM();
+            }
+        }
+    }
+
+    /* --- SPEECH SYSTEM (FEMALE VOICE) --- */
+    let voices = [];
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.onvoiceschanged = () => {
+            voices = window.speechSynthesis.getVoices();
+        };
+        voices = window.speechSynthesis.getVoices();
+    }
+
+    function speak(text) {
+        const bubble = document.getElementById('mascot-bubble');
+        bubble.innerText = text;
+        bubble.style.opacity = '1';
+        setTimeout(() => bubble.style.opacity = '0', 2000);
+        
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); 
+            const u = new SpeechSynthesisUtterance(text);
+            
+            let selectedVoice = voices.find(v => v.name.includes('Google US English') || v.name.includes('Samantha') || v.lang.startsWith('en'));
+            if (selectedVoice) u.voice = selectedVoice;
+
+            if (text.includes("!") || text.match(/Good|Great|Win|Correct|Hero/i)) {
+                u.pitch = 1.4; u.rate = 1.2; u.volume = 1.0;
+            } else if (text.match(/Oh no|Wrong|Try again|Failed|Game Over/i)) {
+                u.pitch = 0.9; u.rate = 0.9; u.volume = 0.9;
+            } else if (text.match(/^\d+$/) || text === "GO!") { 
+                u.pitch = 1.5; u.rate = 1.3;
+            } else {
+                u.pitch = 1.2; u.rate = 1.1;
+            }
+            window.speechSynthesis.speak(u);
+        }
+    }
+
+    /* --- UTILS --- */
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+
+    /* --- GAME LOGIC --- */
+    function startPreGameCountdown() {
+        isPreGame = true;
+        isGameActive = false; 
+        const overlay = document.getElementById('countdown-overlay');
+        const countText = document.getElementById('countdown-number');
+        overlay.classList.add('countdown-active');
+        document.getElementById('hud').classList.add('hidden'); 
+        
+        // Keep menu music playing during countdown, stop when GO
+        // actually, stop it now to create anticipation, or let it play? 
+        // Let's keep menu music during countdown for flow
+        
+        let count = 3;
+        countText.innerText = count;
+        speak(count.toString());
+
+        let countInterval = setInterval(() => {
+            count--;
+            if(count > 0) {
+                countText.innerText = count;
+                speak(count.toString());
+            } else if(count === 0) {
+                countText.innerText = "GO!";
+                speak("GO!");
+            } else {
+                clearInterval(countInterval);
+                overlay.classList.remove('countdown-active');
+                isPreGame = false;
+                playGameBGM(); // Switch to Game Music
+                startGameLoop(currentGameId); 
+            }
+        }, 1000);
+    }
+
+    function startGame(id) {
+        lives = 3; score = 0; currentGameId = id;
+        prepareGameUI(id);
+        startPreGameCountdown();
+    }
+
+    function startGameLoop(id) {
+        isGameActive = true; 
+        updateHUD();
+        document.getElementById('hud').classList.remove('hidden');
+        document.getElementById('hud').style.zIndex = 50;
+        
+        let duration = 10;
+        if (id === 2) duration = 30; // Power Sort extended
+        if (id === 4) duration = 30; // Quiz 30s
+        initClock(duration); 
+        
+        if(id === 1) startSpawnerGame1();
+        if(id === 2) {
+            sortQueue = shuffleArray([...masterSortItems]);
+            spawnNextSortItem();
+        }
+        if(id === 3) startSpawnerGame3();
+        if(id === 4) {
+            quizQueue = shuffleArray([...masterQuizData]);
+            loadQuizQuestion();
+        }
+    }
+
+    function prepareGameUI(id) {
+        clearInterval(clockTimerInterval);
+        clearInterval(spawnTimer);
+        isPaused = false;
+        document.getElementById('screen-pause').style.display = 'none';
+
+        document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+        document.getElementById('screen-game' + id).classList.add('active');
+
+        if(id === 1) buildGridGame1();
+        if(id === 2) {
+            document.getElementById('draggable-area').innerHTML = '';
+            document.getElementById('sort-description').innerText = '';
+        }
+        if(id === 3) document.getElementById('sky-game3').querySelectorAll('.floating-item').forEach(e => e.remove());
+        if(id === 4) document.getElementById('quiz-container').innerHTML = '';
+    }
+
+    function initClock(duration) {
+        gameTimeSeconds = duration;
+        document.getElementById('timer-display').innerText = duration;
+        document.getElementById('timer-display').style.color = 'white';
+        startClockInterval();
+    }
+
+    function startClockInterval() {
+        if(clockTimerInterval) clearInterval(clockTimerInterval);
+        clockTimerInterval = setInterval(() => {
+            if(!isGameActive) return;
+            gameTimeSeconds--;
+            document.getElementById('timer-display').innerText = gameTimeSeconds;
+            if(gameTimeSeconds <= 3) document.getElementById('timer-display').style.color = '#ff7675';
+            if(gameTimeSeconds <= 0) endGame(true);
+        }, 1000);
+    }
+
+    function togglePause() {
+        if(isPreGame) return;
+        const pauseScreen = document.getElementById('screen-pause');
+        const hud = document.getElementById('hud');
+
+        if(!isPaused) {
+            isPaused = true;
+            isGameActive = false; 
+            pauseScreen.style.display = 'flex';
+            clearInterval(clockTimerInterval);
+            clearInterval(spawnTimer);
+            stopAllMusic(); 
+            hud.style.zIndex = 0;
+        } else {
+            isPaused = false;
+            isGameActive = true; 
+            pauseScreen.style.display = 'none';
+            hud.style.zIndex = 50;
+            startClockInterval();
+            playGameBGM(); 
+            
+            if(currentGameId === 1) startSpawnerGame1();
+            if(currentGameId === 3) startSpawnerGame3();
+        }
+    }
+
+    function quitGame() {
+        isPaused = false;
+        isGameActive = false;
+        stopAllMusic();
+        document.getElementById('screen-pause').style.display = 'none';
+        document.getElementById('hud').style.zIndex = 50;
+        goTo('select');
+    }
+
+    function submitName() {
+        initAudio(); 
+        playMenuBGM(); 
+        const input = document.getElementById('player-name-input');
+        playerName = input.value.trim() !== "" ? input.value.trim().toUpperCase() : "HERO";
+        document.getElementById('welcome-msg').innerText = "Hi, " + playerName + "!";
+        goTo('select');
+    }
+
+    function saveScore(gameId, pts) {
+        const key = 'energyHero_scores';
+        let data = JSON.parse(localStorage.getItem(key)) || { 1:[], 2:[], 3:[], 4:[] };
+        data[gameId].push({ name: playerName, score: pts });
+        data[gameId].sort((a, b) => b.score - a.score);
+        data[gameId] = data[gameId].slice(0, 10);
+        localStorage.setItem(key, JSON.stringify(data));
+    }
+
+    function renderLeaderboard() {
+        const key = 'energyHero_scores';
+        let data = JSON.parse(localStorage.getItem(key)) || { 1:[], 2:[], 3:[], 4:[] };
+        const container = document.getElementById('leaderboard-content');
+        container.innerHTML = '';
+        const gameNames = { 1: "⚡ SPEED OF LIGHT", 2: "♻️ POWER SORT", 3: "🌍 EARTH DEFENDER", 4: "❓ POWER QUIZ" };
+
+        for(let gId = 1; gId <= 4; gId++) {
+            let html = `<div class="lb-section"><div class="lb-title">${gameNames[gId]}</div>`;
+            if(data[gId].length === 0) html += `<div class="lb-row">No scores yet!</div>`;
+            else {
+                data[gId].forEach((entry, idx) => {
+                    html += `<div class="lb-row"><span>${idx+1}. ${entry.name}</span><div><span class="lb-score">${entry.score}pts</span></div></div>`;
+                });
+            }
+            html += `</div>`;
+            container.innerHTML += html;
+        }
+    }
+
+    function goTo(screenId) {
+        clearInterval(clockTimerInterval);
+        clearInterval(spawnTimer);
+        isPaused = false;
+        isGameActive = false; 
+        document.getElementById('screen-pause').style.display = 'none';
+
+        document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+        document.getElementById('screen-' + screenId).classList.add('active');
+
+        if(screenId === 'name' || screenId === 'select' || screenId === 'home') {
+            playMenuBGM();
+            document.getElementById('hud').classList.add('hidden');
+        } else if (screenId === 'leaderboard') {
+            playMenuBGM();
+            renderLeaderboard();
+            document.getElementById('hud').classList.add('hidden');
+        } else if (screenId.startsWith('game')) {
+            // Waiting for start
+            stopMenuBGM();
+            document.getElementById('hud').classList.remove('hidden');
+            updateHUD();
+        } else {
+            // Victory/Gameover
+            stopAllMusic(); 
+            document.getElementById('hud').classList.add('hidden');
+        }
+    }
+
+    function updateHUD() {
+        let hearts = "";
+        for(let i=0; i<lives; i++) hearts += "❤️";
+        document.getElementById('lives-display').innerText = hearts;
+        document.getElementById('score-val').innerText = score;
+    }
+
+    function takeDamage() {
+        if(!isGameActive || lives <= 0) return;
+        lives--;
+        updateHUD();
+        if(lives <= 0) { endGame(false); return; }
+        speak("Oops!");
+        const app = document.getElementById('app');
+        app.classList.add('shaking');
+        document.getElementById('damage-overlay').style.opacity = '0.5';
+        setTimeout(() => {
+            app.classList.remove('shaking');
+            document.getElementById('damage-overlay').style.opacity = '0';
+        }, 300);
+    }
+
+    function addScore(points = 1) {
+        if(!isGameActive) return;
+        score += points;
+        updateHUD();
+    }
+
+    function endGame(isWin) {
+        isGameActive = false;
+        clearInterval(clockTimerInterval);
+        clearInterval(spawnTimer);
+        stopAllMusic();
+        
+        if(isWin) {
+            saveScore(currentGameId, score);
+            speak("Time's Up!");
+            document.getElementById('final-score').innerText = score;
+            setTimeout(() => goTo('victory'), 500);
+        } else {
+            speak("Oh no!");
+            const failScoreEl = document.getElementById('fail-score');
+            if(failScoreEl) failScoreEl.innerText = score;
+            goTo('gameover');
+        }
+    }
+
+    /* --- GAME 1: LIGHTS --- */
+    function buildGridGame1() {
+        const grid = document.getElementById('grid-game1');
+        grid.innerHTML = '';
+        for(let i=0; i<9; i++) {
+            let cell = document.createElement('div');
+            cell.className = 'grid-cell';
+            cell.onclick = () => {
+                if(!isGameActive || isPaused || isPreGame) return;
+                if(cell.classList.contains('active')) {
+                    cell.classList.remove('active');
+                    addScore();
+                    playZap(); 
+                } else if (cell.classList.contains('trap')) {
+                    cell.classList.remove('trap');
+                    takeDamage();
+                }
+            };
+            grid.appendChild(cell);
+        }
+    }
+
+    function startSpawnerGame1() {
+        if(spawnTimer) clearInterval(spawnTimer);
+        spawnTimer = setInterval(() => {
+            if(!isGameActive) return;
+            const grid = document.getElementById('grid-game1');
+            let idx = Math.floor(Math.random() * 9);
+            let cell = grid.children[idx];
+            let isTrap = Math.random() < 0.25;
+            cell.className = 'grid-cell'; 
+            void cell.offsetWidth; 
+            if(isTrap) {
+                cell.classList.add('trap');
+                setTimeout(() => { if(!isPaused && isGameActive) cell.classList.remove('trap'); }, 800); 
+            } else {
+                cell.classList.add('active');
+                setTimeout(() => { if(!isPaused && isGameActive) cell.classList.remove('active'); }, 800); 
+            }
+        }, 400);
+    }
+
+    /* --- GAME 2: SORTING --- */
+    function spawnNextSortItem() {
+        if(!isGameActive) return;
+        if (sortQueue.length === 0) sortQueue = shuffleArray([...masterSortItems]);
+        
+        const itemData = sortQueue.pop();
+        const area = document.getElementById('draggable-area');
+        area.innerHTML = '';
+        
+        document.getElementById('sort-description').innerText = itemData.desc;
+
+        const el = document.createElement('div');
+        el.className = 'draggable-item';
+        el.innerText = itemData.icon;
+        el.id = 'drag-item';
+        
+        let isDragging = false;
+        let startX, startY;
+        const startDrag = (e) => {
+            if(!isGameActive || isPaused || isPreGame) return;
+            isDragging = true;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const rect = el.getBoundingClientRect();
+            startX = clientX - rect.left; startY = clientY - rect.top;
+            el.style.position = 'fixed'; el.style.left = rect.left + 'px'; el.style.top = rect.top + 'px'; el.style.zIndex = 1000;
+        };
+        const moveDrag = (e) => {
+            if(!isDragging || !isGameActive || isPaused) return;
+            e.preventDefault();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            el.style.left = (clientX - startX) + 'px'; el.style.top = (clientY - startY) + 'px';
+            checkHover(clientX, clientY);
+        };
+        const endDrag = (e) => {
+            if(!isDragging) return;
+            isDragging = false;
+            const rect = el.getBoundingClientRect();
+            const cx = rect.left + rect.width/2; const cy = rect.top + rect.height/2;
+            const off = document.getElementById('bin-off').getBoundingClientRect();
+            const on = document.getElementById('bin-on').getBoundingClientRect();
+            let droppedIn = null;
+            if (cx > off.left && cx < off.right && cy > off.top && cy < off.bottom) droppedIn = 'off';
+            else if (cx > on.left && cx < on.right && cy > on.top && cy < on.bottom) droppedIn = 'on';
+
+            if(droppedIn === itemData.type) {
+                speak("Correct!"); addScore(); spawnNextSortItem();
+            } else if (droppedIn) {
+                speak("Wrong!"); takeDamage(); spawnNextSortItem();
+            } else {
+                sortQueue.push(itemData); 
+                spawnNextSortItem(); 
+            }
+            document.getElementById('bin-off').classList.remove('hovered');
+            document.getElementById('bin-on').classList.remove('hovered');
+        };
+
+        el.addEventListener('mousedown', startDrag); el.addEventListener('touchstart', startDrag);
+        window.addEventListener('mousemove', moveDrag); window.addEventListener('touchmove', moveDrag, {passive: false});
+        window.addEventListener('mouseup', endDrag); window.addEventListener('touchend', endDrag);
+        area.appendChild(el);
+    }
+    function checkHover(x, y) {
+        const off = document.getElementById('bin-off').getBoundingClientRect();
+        const on = document.getElementById('bin-on').getBoundingClientRect();
+        document.getElementById('bin-off').classList.toggle('hovered', x>off.left&&x<off.right&&y>off.top&&y<off.bottom);
+        document.getElementById('bin-on').classList.toggle('hovered', x>on.left&&x<on.right&&y>on.top&&y<on.bottom);
+    }
+
+    /* --- GAME 3: CLEANUP --- */
+    function startSpawnerGame3() {
+        if(spawnTimer) clearInterval(spawnTimer);
+        spawnTimer = setInterval(() => {
+            if(!isGameActive) return;
+            const sky = document.getElementById('sky-game3');
+            if(sky.querySelectorAll('.floating-item').length > 8) return;
+            let el = document.createElement('div');
+            el.className = 'floating-item';
+            let isTrap = Math.random() < 0.3;
+            if(isTrap) {
+                el.innerText = '🌻'; el.onclick = () => { 
+                    if(!isGameActive || isPaused || isPreGame) return;
+                    takeDamage(); el.innerText='🥀'; setTimeout(()=>el.remove(),500); 
+                };
+            } else {
+                const trash = ['🥤', '📰', '🥡']; el.innerText = trash[Math.floor(Math.random()*trash.length)];
+                el.onclick = () => { 
+                    if(!isGameActive || isPaused || isPreGame) return;
+                    el.remove(); addScore(); playZap(); 
+                };
+            }
+            el.style.left = (Math.random() * 220 + 10) + 'px'; el.style.top = (Math.random() * 220 + 10) + 'px';
+            sky.appendChild(el);
+        }, 500); 
+    }
+
+    /* --- GAME 4: QUIZ --- */
+    function loadQuizQuestion() {
+        if(!isGameActive) return;
+        if (quizQueue.length === 0) quizQueue = shuffleArray([...masterQuizData]);
+        const data = quizQueue.pop();
+        const container = document.getElementById('quiz-container');
+        container.innerHTML = `
+            <div class="quiz-card"><div class="quiz-icon">${data.icon}</div>
+                <div class="quiz-question">${data.q}</div>
+                <div class="quiz-btn-container">
+                    <button class="quiz-btn btn-yes" onclick="answerQuiz(${data.ans}, true)">YES</button>
+                    <button class="quiz-btn btn-no" onclick="answerQuiz(${data.ans}, false)">NO</button>
+                </div></div>`;
+    }
+    function answerQuiz(correctAnswer, userAns) {
+        if(!isGameActive || isPaused || isPreGame) return;
+        if(userAns === correctAnswer) {
+            speak("Good job!"); addScore(); setTimeout(loadQuizQuestion, 500);
+        } else {
+            speak("Try again!"); takeDamage();
+        }
+    }
+</script>
+</body>
+</html>
+    
+  </body>
+  
+</html>
